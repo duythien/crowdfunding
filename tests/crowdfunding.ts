@@ -1,8 +1,9 @@
+
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Crowdfunding } from "../target/types/crowdfunding";
 import assert from "assert";
-
+import { Keypair, PublicKey } from '@solana/web3.js';
 describe("crowdfunding", () => {
   // Configure the client to use the local cluster.
 
@@ -11,22 +12,38 @@ describe("crowdfunding", () => {
 
   const program = anchor.workspace.crowdfunding as Program<crowdfunding>;
 
-  const calculator = anchor.web3.Keypair.generate();
+
+  const user = provider.wallet as anchor.Wallet;
 
   const systemProgram = anchor.web3.SystemProgram;
-  it("Is initialized!", async () => {
-    // Add your test here.
-    await program.rpc.create("Hello solana", {
-      accounts: {
-        calculator: calculator.publicKey,
-        user: provider.wallet.publicKey,
+  it("Created an Campaign!", async () => {
+    const CAMPAIGN_NAME = "Campaign Name";
+    const CAMPAIGN_DESC = "Campaign Description"
+    const mintKeypair = new Keypair();
+
+    const [PDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("data"), user.publicKey.toBuffer()],
+      program.programId,
+    );
+    const transactionSignature = await program.methods
+      .create(CAMPAIGN_NAME, CAMPAIGN_DESC)
+      .accounts({
+        campaign: PDA,
+        user: user.publicKey,
         systemProgram: systemProgram.programId,
-      },
-      signers: [calculator]
-    });
+      })
+      .rpc();
 
-    const account = await program.account.calculator.fetch(calculator.publicKey);
+   
+    //console.log(`   Mint Address: ${mintKeypair.publicKey}`);
+    console.log(`   Transaction Signature: ${transactionSignature}`);
 
-    assert.ok(account.greeting === "Hello solana")
+    //const account = await program.account.campaign.fetch(PDA);
+
+    //console.log(`   Transaction Signature: ${JSON.stringify(account)}`);
+
+    //assert.ok(account.name === CAMPAIGN_NAME)
+    //assert.ok(account.description === CAMPAIGN_DESC)
+
   });
 });
