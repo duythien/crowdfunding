@@ -19,7 +19,6 @@ describe("crowdfunding", () => {
   it("Created an Campaign!", async () => {
     const CAMPAIGN_NAME = "Campaign Name";
     const CAMPAIGN_DESC = "Campaign Description"
-    const mintKeypair = new Keypair();
 
     const [PDA] = PublicKey.findProgramAddressSync(
       [Buffer.from("data"), user.publicKey.toBuffer()],
@@ -38,12 +37,12 @@ describe("crowdfunding", () => {
     //console.log(`   Mint Address: ${mintKeypair.publicKey}`);
     console.log(`   Transaction Signature: ${transactionSignature}`);
 
-    //const account = await program.account.campaign.fetch(PDA);
+    const account = await program.account.campaign.fetch(PDA);
 
     //console.log(`   Transaction Signature: ${JSON.stringify(account)}`);
 
-    //assert.ok(account.name === CAMPAIGN_NAME)
-    //assert.ok(account.description === CAMPAIGN_DESC)
+    assert.ok(account.name === CAMPAIGN_NAME)
+    assert.ok(account.description === CAMPAIGN_DESC)
 
   });
 });
