@@ -45,4 +45,30 @@ describe("crowdfunding", () => {
     assert.ok(account.description === CAMPAIGN_DESC)
 
   });
+
+  it("Withdraw an Campaign!", async () => {
+   
+
+    const [PDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("data"), user.publicKey.toBuffer()],
+      program.programId,
+    );
+    try {
+
+      const transactionSignature = await program.methods
+      .withdraw(new anchor.BN(1000000))
+      .accounts({
+        campaign: PDA,
+        user: user.publicKey,
+        systemProgram: systemProgram.programId,
+      })
+      .rpc();
+    } catch(err) {
+
+      const errMsg ="Insufficient funds";
+      assert.strictEqual(err.error.errorMessage, errMsg);
+      console.log("Error number:", err.error.errorCode.number);
+    }
+  });
+
 });
